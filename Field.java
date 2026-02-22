@@ -15,9 +15,10 @@ public class Field
     // The dimensions of the field.
     private final int depth, width;
     // Animals mapped by location.
-    private final Map<Location, Animal> field = new HashMap<>();
+    private final Map<Location, Organism> field = new HashMap<>();
     // The animals.
-    private final List<Animal> animals = new ArrayList<>();
+    private final List<Organism> organisms = new ArrayList<>();
+
 
     /**
      * Represent a field of the given dimensions.
@@ -37,15 +38,15 @@ public class Field
      * @param anAnimal The animal to be placed.
      * @param location Where to place the animal.
      */
-    public void placeAnimal(Animal anAnimal, Location location)
+    public void placeOrganism(Organism anOrganism, Location location)
     {
         assert location != null;
         Object other = field.get(location);
         if(other != null) {
-            animals.remove(other);
+            organisms.remove(other);
         }
-        field.put(location, anAnimal);
-        animals.add(anAnimal);
+        field.put(location, anOrganism);
+        organisms.add(anOrganism);
     }
     
     /**
@@ -53,12 +54,12 @@ public class Field
      * @param location Where in the field.
      * @return The animal at the given location, or null if there is none.
      */
-    public Animal getAnimalAt(Location location)
+    public Organism getOrganismAt(Location location)
     {
         return field.get(location);
     }
 
-    /**
+      /**
      * Get a shuffled list of the free adjacent locations.
      * @param location Get locations adjacent to this.
      * @return A list of free adjacent locations.
@@ -68,11 +69,11 @@ public class Field
         List<Location> free = new LinkedList<>();
         List<Location> adjacent = getAdjacentLocations(location);
         for(Location next : adjacent) {
-            Animal anAnimal = field.get(next);
-            if(anAnimal == null) {
+            Organism anOrganism = field.get(next);
+            if(anOrganism == null) {
                 free.add(next);
             }
-            else if(!anAnimal.isAlive()) {
+            else if(!anOrganism.isAlive()) {
                 free.add(next);
             }
         }
@@ -119,19 +120,19 @@ public class Field
     public void fieldStats()
     {
         int numFoxes = 0, numRabbits = 0, numGrass = 0;
-        for(Animal anAnimal : field.values()) {
-            if(anAnimal instanceof Fox fox) {
+        for(Organism anOrganism : field.values()) {
+            if(anOrganism instanceof Fox fox) {
                 if(fox.isAlive()) {
                     numFoxes++;
                 }
             }
-            else if(anAnimal instanceof Rabbit rabbit) {
+            else if(anOrganism instanceof Rabbit rabbit) {
                 if(rabbit.isAlive()) {
                     numRabbits++;
                 }
             }
             
-            else if(anAnimal instanceof Grass grass) {
+            else if(anOrganism instanceof Grass grass) {
                 if(grass.isAlive()) {
                     numGrass++;
                 }
@@ -159,20 +160,20 @@ public class Field
         boolean rabbitFound = false;
         boolean foxFound = false;
         boolean grassFound = false;
-        Iterator<Animal> it = animals.iterator();
+        Iterator<Organism> it = organisms.iterator();
         while(it.hasNext() && ! (rabbitFound && foxFound)) {
-            Animal anAnimal = it.next();
-            if(anAnimal instanceof Rabbit rabbit) {
+            Organism anOrganism = it.next();
+            if(anOrganism instanceof Rabbit rabbit) {
                 if(rabbit.isAlive()) {
                     rabbitFound = true;
                 }
             }
-            else if(anAnimal instanceof Fox fox) {
+            else if(anOrganism instanceof Fox fox) {
                 if(fox.isAlive()) {
                     foxFound = true;
                 }
             }
-           else if(anAnimal instanceof Grass grass) {
+           else if(anOrganism instanceof Grass grass) {
                 if(grass.isAlive()) {
                     grassFound = true;
                 }
@@ -184,9 +185,9 @@ public class Field
     /**
      * Get the list of animals.
      */
-    public List<Animal> getAnimals()
+    public List<Organism> getOrganisms()
     {
-        return animals;
+        return organisms;
     }
 
     /**

@@ -1,17 +1,9 @@
-#Thu Feb 19 14:32:38 GMT 2026
+#Thu Feb 19 14:34:45 GMT 2026
 bluej.teamsettings.git.branch=
 bluej.teamsettings.git.protocol=https
 bluej.teamsettings.git.repositoryPrefix=/mqi-cs/foxes_rabbits.git
 bluej.teamsettings.git.server=github.com
-bluej.teamsettings.ignore1=.*\\.class
-bluej.teamsettings.ignore2=bluej\\.pkh
-bluej.teamsettings.ignore3=team\\.defs
-bluej.teamsettings.ignore4=.*\\.ctxt
-bluej.teamsettings.ignore5=.*\\~
-bluej.teamsettings.ignore6=.*\\\#
-bluej.teamsettings.ignore7=.*\\\#backup
-bluej.teamsettings.ignore8=\\.DS_Store
-bluej.teamsettings.savedpwd=vNPoSaSUQefDa5Qa2OEYMnXfeJGZPXmC982M7slLWkRPoyHBxB3eqv0psi3NNZMTKLFh74eSGJz6nmFkcj46lYvy7iEhMBiaABi0jjV0mjvZMqcQIQWDvN9KLUpSUpSt
+bluej.teamsettings.savedpwd=vNPoSaSUQefDa5Qa2OEYMuOknSGsZeDjuB0VuYp1sa1nqIXSYizwks0tXtEZ901Hca1Boqtnru53p+JQIGO9VMFrUR6golFws77j7mTuhctdhV2+QD95CoH98kXtn4xd
 bluej.teamsettings.user=mqi-cs
 bluej.teamsettings.vcs=git
 bluej.teamsettings.yourEmail=mqasimimran@outlook.com

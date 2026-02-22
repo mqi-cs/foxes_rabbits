@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.Random;
+import java.util.Iterator;
 
 /**
  * A simple model of a rabbit.
@@ -22,10 +23,16 @@ public class Rabbit extends Animal
     // A shared random number generator to control breeding.
     private static final Random rand = Randomizer.getRandom();
     
+    private static final int FOOD_VALUE = 9;
+
     // Individual characteristics (instance fields).
     
     // The rabbit's age.
     private int age;
+
+    private int foodLevel;
+
+    private static  int health = 50;
 
     /**
      * Create a new rabbit. A rabbit may be created with age
@@ -34,42 +41,13 @@ public class Rabbit extends Animal
      * @param randomAge If true, the rabbit will have a random age.
      * @param location The location within the field.
      */
-    public Rabbit(boolean randomAge, Location location)
+    public Rabbit(Location location,boolean randomAge)
     {
-        super(location);
-        age = 0;
-        if(randomAge) {
-            age = rand.nextInt(MAX_AGE);
-        }
+        super( location,  BREEDING_AGE,  MAX_AGE,  BREEDING_PROBABILITY, MAX_LITTER_SIZE, FOOD_VALUE, randomAge,health);
+
     }
     
-    /**
-     * This is what the rabbit does most of the time - it runs 
-     * around. Sometimes it will breed or die of old age.
-     * @param currentField The field occupied.
-     * @param nextFieldState The updated field.
-     */
-    public void act(Field currentField, Field nextFieldState)
-    {
-        incrementAge();
-        if(isAlive()) {
-            List<Location> freeLocations = 
-                nextFieldState.getFreeAdjacentLocations(getLocation());
-            if(!freeLocations.isEmpty()) {
-                giveBirth(nextFieldState, freeLocations);
-            }
-            // Try to move into a free location.
-            if(! freeLocations.isEmpty()) {
-                Location nextLocation = freeLocations.get(0);
-                setLocation(nextLocation);
-                nextFieldState.placeAnimal(this, nextLocation);
-            }
-            else {
-                // Overcrowding.
-                setDead();
-            }
-        }
-    }
+   
 
     @Override
     public String toString() {
@@ -80,60 +58,41 @@ public class Rabbit extends Animal
                 '}';
     }
 
-    /**
-     * Increase the age.
-     * This could result in the rabbit's death.
-     */
-    private void incrementAge()
+    @Override
+    protected void giveBirth(Field nextFieldState, List<Location> freeLocations,Field currentField)
     {
-        age++;
-        if(age > MAX_AGE) {
-            setDead();
-        }
-    }
-    
-    /**
-     * Check whether or not this rabbit is to give birth at this step.
-     * New births will be made into free adjacent locations.
-     * @param freeLocations The locations that are free in the current field.
-     */
-    private void giveBirth(Field nextFieldState, List<Location> freeLocations)
-    {
-        // New rabbits are born into adjacent locations.
+        // New foxes are born into adjacent locations.
         // Get a list of adjacent free locations.
-        int births = breed();
+        int births = breed(currentField);
         if(births > 0) {
-            for (int b = 0; b < births && !freeLocations.isEmpty(); b++) {
+            for (int b = 0; b < births && ! freeLocations.isEmpty(); b++) {
                 Location loc = freeLocations.remove(0);
-                Rabbit young = new Rabbit(false, loc);
-                nextFieldState.placeAnimal(young, loc);
+                Rabbit young = new Rabbit(loc,true);
+                nextFieldState.placeOrganism(young, loc);
             }
         }
     }
+    
+    
+    @Override    
+    public Location findFood(Field field){
         
-    /**
-     * Generate a number representing the number of births,
-     * if it can breed.
-     * @return The number of births (may be zero).
-     */
-    private int breed()
-    {
-        int births;
-        if(canBreed() && rand.nextDouble() <= BREEDING_PROBABILITY) {
-            births = rand.nextInt(MAX_LITTER_SIZE) + 1;
-        }
-        else {
-            births = 0;
-        }
-        return births;
-    }
-
-    /**
-     * A rabbit can breed if it has reached the breeding age.
-     * @return true if the rabbit can breed, false otherwise.
-     */
-    private boolean canBreed()
-    {
-        return age >= BREEDING_AGE;
-    }
+        List<Location> adjacent = field.getAdjacentLocations(getLocation());
+        Iterator<Location> it = adjacent.iterator();
+        Location foodLocation = null;
+        while(foodLocation == null && it.hasNext()) {
+            Location loc = it.next();
+            Organism organism = field.getOrganismAt(loc);
+            if(organism instanceof Grass grass) {
+                if(grass.isAlive()) {
+                    grass.setDead();
+                    foodLevel = FOOD_VALUE;
+                    foodLocation = loc;
+                    }
+                }
+            }
+        return foodLocation;
+    }     
+    
 }
+

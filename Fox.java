@@ -19,25 +19,24 @@ public class Fox extends Animal
     // The likelihood of a fox breeding.
     private static final double BREEDING_PROBABILITY = 0.08;
     // The maximum number of births.
-    private static final int MAX_LITTER_SIZE = 2;
+    private static final int MAX_LITTER_SIZE = 4;
     // The food value of a single rabbit. In effect, this is the
     // number of steps a fox can go before it has to eat again.
-    private static final int RABBIT_FOOD_VALUE = 9;
+    private static final int FOOD_VALUE = 15;
     // A shared random number generator to control breeding.
     private static final Random rand = Randomizer.getRandom();
-    
+ 
+    private static int health  = 100;
     // Individual characteristics (instance fields).
 
     // The fox's age.
     private int age;
     // The fox's food level, which is increased by eating rabbits.
     private int foodLevel;
-    
-    private int health;
 
-    private boolean diseaseFlag;
-    
-    private int stepCounter;
+ 
+
+
     
     /**
      * Create a fox. A fox can be created as a new born (age zero
@@ -46,95 +45,11 @@ public class Fox extends Animal
      * @param randomAge If true, the fox will have random age and hunger level.
      * @param location The location within the field.
      */
-    public Fox(boolean randomAge, Location location)
+    public Fox(Location location, boolean randomAge)
     {
-        super(location);
-                
-        if(randomAge) {
-            age = rand.nextInt(MAX_AGE);
-        }
-        else {
-            age = 0;
-        }
-        foodLevel = rand.nextInt(RABBIT_FOOD_VALUE);
+        super( location,  BREEDING_AGE,  MAX_AGE,  BREEDING_PROBABILITY, MAX_LITTER_SIZE, FOOD_VALUE, randomAge,health);
         
-        this.health = 100;
-
-        this.diseaseFlag = false;
         
-        this.stepCounter = 0;
-        
-    }
-    
-    /**
-     * This is what the fox does most of the time: it hunts for
-     * rabbits. In the process, it might breed, die of hunger,
-     * or die of old age.
-     * @param currentField The field currently occupied.
-     * @param nextFieldState The updated field.
-     */
-    public void act(Field currentField, Field nextFieldState)
-    {
-        incrementAge();
-        incrementHunger();
-        if(isAlive()) {
-            
-            if(health == 100){
-                diseaseProb();
-            }
-            
-        
-            List<Location> freeLocations =
-                    nextFieldState.getFreeAdjacentLocations(getLocation());
-            if(! freeLocations.isEmpty()) {
-                giveBirth(nextFieldState, freeLocations,currentField);
-            }
-            // Move towards a source of food if found.
-            Location nextLocation = findFood(currentField);
-            if(nextLocation == null && ! freeLocations.isEmpty()) {
-                // No food found - try to move to a free location.
-                nextLocation = freeLocations.remove(0);
-            }
-            // See if it was possible to move.
-            if(nextLocation != null) {
-                setLocation(nextLocation);
-                nextFieldState.placeAnimal(this, nextLocation);
-                disease();
-            }
-            else {
-                // Overcrowding.
-                setDead();
-            }
-        }
-    }
-
-    
-    public int diseaseProb(){
-        
-        double diseaseProbability = 0.03;
-        
-        if(rand.nextDouble()<= diseaseProbability){
-            diseaseFlag = true;
-        }
-        return health;
-        
-    }
-    
-    
-    public void disease(){
-        
-        if(diseaseFlag){
-            stepCounter = stepCounter + 1;
-            if(stepCounter == 5){
-                health = health - 20;
-                stepCounter = stepCounter - 5;
-                if(health ==0){
-                    setDead();
-                }
-            }
-            
-        }
-         
     }
     
     @Override
@@ -146,60 +61,9 @@ public class Fox extends Animal
                 ", foodLevel=" + foodLevel +
                 '}';
     }
-
-    /**
-     * Increase the age. This could result in the fox's death.
-     */
-    private void incrementAge()
-    {
-        age++;
-        if(age > MAX_AGE) {
-            setDead();
-        }
-    }
     
-    /**
-     * Make this fox more hungry. This could result in the fox's death.
-     */
-    private void incrementHunger()
-    {
-        foodLevel--;
-        if(foodLevel <= 0) {
-            setDead();
-        }
-    }
-    
-    /**
-     * Look for rabbits adjacent to the current location.
-     * Only the first live rabbit is eaten.
-     * @param field The field currently occupied.
-     * @return Where food was found, or null if it wasn't.
-     */
-    private Location findFood(Field field)
-    {
-        List<Location> adjacent = field.getAdjacentLocations(getLocation());
-        Iterator<Location> it = adjacent.iterator();
-        Location foodLocation = null;
-        while(foodLocation == null && it.hasNext()) {
-            Location loc = it.next();
-            Animal animal = field.getAnimalAt(loc);
-            if(animal instanceof Rabbit rabbit) {
-                if(rabbit.isAlive()) {
-                    rabbit.setDead();
-                    foodLevel = RABBIT_FOOD_VALUE;
-                    foodLocation = loc;
-                }
-            }
-        }
-        return foodLocation;
-    }
-    
-    /**
-     * Check whether this fox is to give birth at this step.
-     * New births will be made into free adjacent locations.
-     * @param freeLocations The locations that are free in the current field.
-     */
-    private void giveBirth(Field nextFieldState, List<Location> freeLocations,Field currentField)
+    @Override
+    protected void giveBirth(Field nextFieldState, List<Location> freeLocations,Field currentField)
     {
         // New foxes are born into adjacent locations.
         // Get a list of adjacent free locations.
@@ -207,46 +71,33 @@ public class Fox extends Animal
         if(births > 0) {
             for (int b = 0; b < births && ! freeLocations.isEmpty(); b++) {
                 Location loc = freeLocations.remove(0);
-                Fox young = new Fox(false, loc);
-                nextFieldState.placeAnimal(young, loc);
+                Fox young = new Fox(loc,true);
+                nextFieldState.placeOrganism(young, loc);    
             }
         }
     }
+    
+    
+    @Override   
+    public Location findFood(Field field){
         
-    /**
-     * Generate a number representing the number of births,
-     * if it can breed.
-     * @return The number of births (may be zero).
-     */
-    private int breed(Field currentField)
-    {
-        int births;
-        if(canBreed(currentField) && rand.nextDouble() <= BREEDING_PROBABILITY) {
-            births = rand.nextInt(MAX_LITTER_SIZE) + 1;
-        }
-        else {
-            births = 0;
-        }
-        return births;
-    }
-
-    /**
-     * A fox can breed if it has reached the breeding age.
-     */
-    private boolean canBreed(Field field)
-    {
         List<Location> adjacent = field.getAdjacentLocations(getLocation());
+        Iterator<Location> it = adjacent.iterator();
+        Location foodLocation = null;
+        while(foodLocation == null && it.hasNext()) {
+            Location loc = it.next();
+            Organism organism = field.getOrganismAt(loc);
+            if(organism instanceof Rabbit rabbit) {
+                if(rabbit.isAlive()) {
+                    rabbit.setDead();
+                    foodLevel = FOOD_VALUE;
+                    foodLocation = loc;
+                    }
+                }
+            }
+        return foodLocation;
 
-        for(Location newLocation : adjacent){ 
-        
-            Animal currentAnimal = field.getAnimalAt(newLocation);
-            
-            if(currentAnimal != null && currentAnimal.getGender() != getGender() ){
-        
-                return age >= BREEDING_AGE;
-            }   
-        }
-        
-        return false;
-    }
+    } 
+
 }
+

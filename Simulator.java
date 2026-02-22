@@ -15,11 +15,11 @@ public class Simulator
     // The default depth of the grid.
     private static final int DEFAULT_DEPTH = 80;
     // The probability that a fox will be created in any given grid position.
-    private static final double FOX_CREATION_PROBABILITY = 0.02;
+    private static final double FOX_CREATION_PROBABILITY = 0.04;
     // The probability that a rabbit will be created in any given position.
-    private static final double RABBIT_CREATION_PROBABILITY = 0.08;  
+    private static final double RABBIT_CREATION_PROBABILITY = 0.09;  
     
-    private static final double GRASS_CREATION_PROBABILITY = 0.01;  
+    private static final double GRASS_CREATION_PROBABILITY = 0.09;  
 
     // The current state of the field.
     private Field field;
@@ -90,9 +90,9 @@ public class Simulator
         // the next step.
         Field nextFieldState = new Field(field.getDepth(), field.getWidth());
 
-        List<Animal> animals = field.getAnimals();
-        for (Animal anAnimal : animals) {
-            anAnimal.act(field, nextFieldState);
+        List<Organism> organisms = field.getOrganisms();
+        for (Organism anOrganism : organisms) {
+            anOrganism.act(field, nextFieldState);
         }
         
         // Replace the old state with the new one.
@@ -123,19 +123,19 @@ public class Simulator
             for(int col = 0; col < field.getWidth(); col++) {
                 if(rand.nextDouble() <= FOX_CREATION_PROBABILITY) {
                     Location location = new Location(row, col);
-                    Fox fox = new Fox(true, location);
-                    field.placeAnimal(fox, location);
+                    Fox fox = new Fox(location,true);
+                    field.placeOrganism(fox, location);
                 }
                 else if(rand.nextDouble() <= RABBIT_CREATION_PROBABILITY) {
                     Location location = new Location(row, col);
-                    Rabbit rabbit = new Rabbit(true, location);
-                    field.placeAnimal(rabbit, location);
+                    Rabbit rabbit = new Rabbit(location,true);
+                    field.placeOrganism(rabbit, location);
                 }
                 
                 else if(rand.nextDouble() <= GRASS_CREATION_PROBABILITY) {
                     Location location = new Location(row, col);
                     Grass grass = new Grass(location);
-                    field.placeAnimal(grass, location);
+                    field.placeOrganism(grass, location);
                 }
                 // else leave the location empty.
             }

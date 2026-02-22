@@ -64,14 +64,14 @@ public class FieldStats
      * Increment the count for one class of animal.
      * @param animalClass The class of animal to increment.
      */
-    public void incrementCount(Class<?> animalClass)
+    public void incrementCount(Class<?> organismClass)
     {
-        Counter count = counters.get(animalClass);
+        Counter count = counters.get(organismClass);
         if(count == null) {
             // We do not have a counter for this species yet.
             // Create one.
-            count = new Counter(animalClass.getName());
-            counters.put(animalClass, count);
+            count = new Counter(organismClass.getName());
+            counters.put(organismClass, count);
         }
         count.increment();
     }
@@ -106,9 +106,9 @@ public class FieldStats
         reset();
         for(int row = 0; row < field.getDepth(); row++) {
             for(int col = 0; col < field.getWidth(); col++) {
-                Animal animal = field.getAnimalAt(new Location(row, col));
-                if(animal != null) {
-                    incrementCount(animal.getClass());
+                Organism organism = field.getOrganismAt(new Location(row, col));
+                if(organism != null) {
+                    incrementCount(organism.getClass());
                 }
             }
         }

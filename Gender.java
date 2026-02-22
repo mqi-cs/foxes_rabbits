@@ -7,5 +7,5 @@
  */
 public enum Gender
 {
-    MALE, FEMALE, Raghap
+    MALE, FEMALE
 }
